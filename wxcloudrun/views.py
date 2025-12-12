@@ -4,7 +4,10 @@ from run import app
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
-
+from flask import Blueprint, request, jsonify
+import base64
+import requests
+import dashscope
 
 @app.route('/')
 def index():
@@ -64,3 +67,55 @@ def get_count():
     """
     counter = Counters.query.filter(Counters.id == 1).first()
     return make_succ_response(0) if counter is None else make_succ_response(counter.count)
+
+
+
+bp = Blueprint('index', __name__)
+dashscope.api_key = "sk-28e1ec1fb4d74e69a573e9f6dd8cd2f8"
+
+@bp.route('/api/generate', methods=['POST'])
+def generate_avatar():
+    try:
+        # 接收Base64头像
+        data = request.get_json()
+        img_base64 = data.get("imageBase64")
+
+        if not img_base64:
+            return jsonify({"error": "no image provided"}), 400
+
+        # 调用阿里云图片编辑接口
+        from dashscope import MultiModalConversation
+
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"image": img_base64},
+                    {"text": "请保留头像主体，并生成一顶红色圣诞帽戴在头上"}
+                ]
+            }
+        ]
+
+        response = MultiModalConversation.call(
+            model="qwen-image-edit-plus",
+            messages=messages,
+            stream=False,
+            n=1,
+            prompt_extend=True
+        )
+
+        if response.status_code != 200:
+            return jsonify({
+                "error": "AI error",
+                "detail": response.message
+            }), 500
+
+        image_url = response.output.choices[0].message.content[0]['image']
+
+        return jsonify({
+            "code": 0,
+            "imageUrl": image_url
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
