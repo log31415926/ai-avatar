@@ -7,15 +7,19 @@ FROM python:3.14-slim
 # RUN apk add tzdata && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone
 
 # 使用 HTTPS 协议访问容器云调用证书安装
-RUN apk add ca-certificates
+RUN apt-get update && apt-get install -y ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # 安装依赖包，如需其他依赖包，请到alpine依赖包管理(https://pkgs.alpinelinux.org/packages?name=php8*imagick*&branch=v3.13)查找。
 # 选用国内镜像源以提高下载速度
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tencent.com/g' /etc/apk/repositories \
 # 安装python3
-&& apk add --update --no-cache python3 py3-pip \
+&& apt-get update && apt-get install -y python3 python3-pip\
 && rm -rf /var/cache/apk/*
 
+RUN apt-get update && apt-get install -y \
+    gcc libffi-dev libssl-dev make build-essential \
+    && rm -rf /var/lib/apt/lists/*
 # 拷贝当前项目到/app目录下（.dockerignore中文件除外）
 COPY . /app
 
