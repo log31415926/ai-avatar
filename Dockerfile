@@ -8,7 +8,7 @@ FROM python:3.14-slim
 
 
 RUN apt-get update && apt-get install -y \
-    python3 python3-pip gcc libffi-dev libssl-dev make build-essential \
+    gcc libffi-dev libssl-dev make build-essential \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
@@ -25,7 +25,7 @@ RUN pip config set global.index-url http://mirrors.cloud.tencent.com/pypi/simple
 && pip config set global.trusted-host mirrors.cloud.tencent.com \
 && pip install --upgrade pip \
 # pip install scipy 等数学包失败，可使用 apk add py3-scipy 进行， 参考安装 https://pkgs.alpinelinux.org/packages?name=py3-scipy&branch=v3.13
-&& pip install --user -r requirements.txt
+&& pip install -r requirements.txt
 
 # 暴露端口。
 # 此处端口必须与「服务设置」-「流水线」以及「手动上传代码包」部署时填写的端口一致，否则会部署失败。
