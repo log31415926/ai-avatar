@@ -7,7 +7,7 @@ from wxcloudrun.response import make_succ_empty_response, make_succ_response, ma
 from flask import Blueprint, request, jsonify
 import base64
 import requests
-import dashscope
+from dashscope import ImageSynthesis
 
 @app.route('/')
 def index():
@@ -69,39 +69,41 @@ def get_count():
     return make_succ_response(0) if counter is None else make_succ_response(counter.count)
 
 
-
 bp = Blueprint('index', __name__)
-dashscope.api_key = "sk-28e1ec1fb4d74e69a573e9f6dd8cd2f8"
+
+# 你的 DashScope API Key
+API_KEY = "sk-28e1ec1fb4d74e69a573e9f6dd8cd2f8"  # 或直接写成 API_KEY = "sk-xxx"
+
+# --- 用于 Base64 编码 ---
+def encode_file(file_path):
+    mime_type, _ = mimetypes.guess_type(file_path)
+    if not mime_type or not mime_type.startswith("image/"):
+        raise ValueError("不支持或无法识别的图像格式")
+
+    with open(file_path, "rb") as f:
+        encoded_string = base64.b64encode(f.read()).decode("utf-8")
+    return f"data:{mime_type};base64,{encoded_string}"
+
 
 @bp.route('/api/generate', methods=['POST'])
 def generate_avatar():
     try:
-        # 接收Base64头像
+        # 接收 Base64 头像
         data = request.get_json()
         img_base64 = data.get("imageBase64")
 
         if not img_base64:
             return jsonify({"error": "no image provided"}), 400
 
-        # 调用阿里云图片编辑接口
-        from dashscope import MultiModalConversation
+        # 构造 prompt
+        prompt = "请保留头像主体，并生成一顶红色圣诞帽戴在头上"
 
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {"image": img_base64},
-                    {"text": "请保留头像主体，并生成一顶红色圣诞帽戴在头上"}
-                ]
-            }
-        ]
-
-        response = MultiModalConversation.call(
+        # 调用 DashScope 新 SDK
+        response = ImageSynthesis.call(
             model="qwen-image-edit-plus",
-            messages=messages,
-            stream=False,
-            n=1,
-            prompt_extend=True
+            prompt=prompt,
+            image_base64=img_base64,
+            api_key=API_KEY
         )
 
         if response.status_code != 200:
@@ -110,11 +112,12 @@ def generate_avatar():
                 "detail": response.message
             }), 500
 
-        image_url = response.output.choices[0].message.content[0]['image']
+        # 返回生成的 Base64 图像
+        edited_image_b64 = response.output.image_base64
 
         return jsonify({
             "code": 0,
-            "imageUrl": image_url
+            "imageBase64": edited_image_b64
         })
 
     except Exception as e:
