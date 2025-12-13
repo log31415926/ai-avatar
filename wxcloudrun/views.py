@@ -95,7 +95,7 @@ def generate():
 """
 
 
-@api.route('/api/generate', methods=['POST'])
+@app.route('/api/generate', methods=['POST'])
 def generate():
     return "generate"
 
