@@ -71,7 +71,7 @@ def get_count():
 
 
 
-api = Blueprint("api", __name__)
+#api = Blueprint("api", __name__)
 
 """
 @api.route("/api/generate", methods=["POST"])
