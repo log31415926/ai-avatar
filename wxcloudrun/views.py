@@ -29,7 +29,7 @@ def count():
 
     # 检查action参数
     if 'action' not in params:
-        return make_err_response('缺少action参数')
+        return make_err_response('缺少action参数111111')
 
     # 按照不同的action的值，进行不同的操作
     action = params['action']
@@ -91,3 +91,8 @@ def generate():
     return jsonify({
         "images": image_urls
     })
+
+
+@app.route("/ping")
+def ping():
+    return "pong"
