@@ -8,7 +8,7 @@ from flask import Blueprint, request, jsonify
 import base64
 import requests
 #import dashscope
-from dashscope_http import generate_image
+from .dashscope_http import generate_image
 
 @app.route('/')
 def index():

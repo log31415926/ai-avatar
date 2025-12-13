@@ -26,7 +26,7 @@ def generate_image(image_url: str, prompt: str):
             ]
         },
         "parameters": {
-            "n": 1,
+            "n": 2,
             "watermark": False
         }
     }
