@@ -97,7 +97,22 @@ def generate():
 
 @app.route('/api/generate', methods=['POST'])
 def generate():
-    return "generate"
+    data = request.json or {}
+
+    image_url = data.get("image_url")
+    prompt = data.get("prompt", "给图片戴上一顶圣诞帽")
+
+    if not image_url:
+        return jsonify({"error": "image_url is required"}), 400
+
+    result = generate_image(image_url, prompt)
+
+    images = result["output"]["choices"][0]["message"]["content"]
+    image_urls = [i["image"] for i in images]
+
+    return jsonify({
+        "images": image_urls
+    })
 
 @app.route("/ping")
 def ping():
