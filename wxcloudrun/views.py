@@ -73,6 +73,7 @@ def get_count():
 
 api = Blueprint("api", __name__)
 
+"""
 @api.route("/api/generate", methods=["POST"])
 def generate():
     data = request.json or {}
@@ -91,7 +92,12 @@ def generate():
     return jsonify({
         "images": image_urls
     })
+"""
 
+
+@api.route('/api/generate', methods=['POST'])
+def generate():
+    return "generate"
 
 @app.route("/ping")
 def ping():
