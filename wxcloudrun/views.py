@@ -7,6 +7,7 @@ from wxcloudrun.response import make_succ_empty_response, make_succ_response, ma
 from flask import Blueprint, request, jsonify
 import base64
 import requests
+import random
 #import dashscope
 from .dashscope_http import generate_image
 
