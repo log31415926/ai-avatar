@@ -152,7 +152,7 @@ def generate_all():
     data = request.json or {}
 
     image_url = data.get("image_url")
-    prompt = data.get("prompt", "给图片戴上一顶圣诞帽")
+    prompt = data.get("prompt", "为图片中的主体穿上圣诞装扮，背景也添加上圣诞装饰")
 
     if not image_url:
         return jsonify({"error": "image_url is required"}), 400
